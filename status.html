@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Room Status</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="logo">PUKORET HOMES</div>
+    <ul class="nav-links">
+        <li><a href="dashboard.html">home</a></li>
+        <li><a href="status.html" class="active">Motel</a></li>
+        <li><a href="admin.html">Admin</a></li>
+        <li><a href="restaurant.html">Restaurant</a></li>
+    </ul>
+</nav>
+
+<header style="display:flex;align-items:center;justify-content:space-between;padding:var(--spacing-md) var(--spacing-xl);background:var(--color-primary-lighter);border-radius:var(--radius-lg);box-shadow:var(--shadow-xs);margin-bottom:var(--spacing-lg);">
+    <h2 style="color:var(--color-primary);font-size:var(--font-size-2xl);font-weight:var(--font-weight-bold);margin:0;">Room Status</h2>
+    <button onclick="logout()" style="background:var(--color-danger);color:var(--color-white);border:none;padding:var(--spacing-sm) var(--spacing-lg);border-radius:var(--radius-md);font-size:var(--font-size-base);font-weight:var(--font-weight-semibold);box-shadow:var(--shadow-xs);cursor:pointer;transition:background var(--transition-fast);">Logout</button>
+</header>
+
+<main class="page-container">
+    <div id="summaryCards"></div>
+    <div id="statusContent"></div>
+</main>
+
+<!-- Floating Receipt Modal -->
+<div id="receiptModal" class="modal" style="display:none;align-items:center;justify-content:center;">
+    <div class="modal-content receipt-print" style="max-width:420px;width:100%;background:#fff;padding:0;">
+        <span class="close-modal" onclick="closeReceiptModal()" style="right:18px;top:12px;">&times;</span>
+        <div id="receiptDetails"></div>
+            <!-- Receipt content only, no print button inside -->
+        </div>
+    </div>
+        <!-- Print button and close button outside modal -->
+        <div style="position:fixed;top:32px;right:32px;z-index:1200;display:flex;flex-direction:column;align-items:flex-end;">
+            <button class="action-btn" id="printReceiptBtn" onclick="printReceipt()" style="margin-bottom:8px;display:none;">Print Receipt</button>
+            <button class="action-btn" id="closeReceiptBtn" onclick="closeReceiptModal()" style="background:var(--color-warning);color:var(--color-white);display:none;">Close Receipt</button>
+        </div>
+    </div>
+</div>
+<style>
+    .receipt-print {
+        font-family: 'Courier New', Courier, monospace;
+        padding: 0;
+        border-radius: 12px;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.10);
+        background: #fff;
+    }
+    .receipt-print .r-header {
+        font-size: 1.6em;
+        font-weight: bold;
+        text-align: center;
+        margin-top: 18px;
+        letter-spacing: 2px;
+    }
+    .receipt-print .r-sub {
+        text-align: center;
+        font-size: 1em;
+        margin-bottom: 8px;
+        color: #222;
+    }
+    .receipt-print .r-divider {
+        border-top: 2px solid #222;
+        margin: 12px 0;
+    }
+    .receipt-print .r-section {
+        margin: 10px 0;
+        font-size: 1.08em;
+    }
+    .receipt-print .r-label {
+        display: inline-block;
+        min-width: 120px;
+        font-weight: bold;
+        text-align: left;
+    }
+    .receipt-print .r-value {
+        float: right;
+        font-weight: bold;
+        text-align: right;
+    }
+    .receipt-print .r-row {
+        clear: both;
+        margin-bottom: 4px;
+    }
+    .receipt-print .r-total {
+        font-size: 1.2em;
+        font-weight: bold;
+        margin: 10px 0;
+        text-align: right;
+    }
+    .receipt-print .r-welcome {
+        text-align: center;
+        margin-top: 18px;
+        font-size: 1.08em;
+        color: #222;
+    }
+    @media print {
+        body * { visibility: hidden; }
+        #receiptModal, #receiptModal * { visibility: visible; }
+        #receiptModal { position: absolute; left: 0; top: 0; width: 100%; }
+        .close-modal, .action-btn { display: none !important; }
+    }
+</style>
+
+<!-- Room Action Modal -->
+<div id="roomModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <span class="close-modal" onclick="closeRoomModal()">&times;</span>
+        <h3><span id="roomNumber"></span></h3>
+        <p id="roomCurrentStatus" style="margin-bottom: 20px; color: #666;"></p>
+        <div class="room-actions">
+            <button id="btnCheckin" class="action-btn checkin" onclick="showCheckInForm()">Check In</button>
+            <button id="btnCheckout" class="action-btn checkout" onclick="checkOut()">Check Out</button>
+            <button id="btnCleaning" class="action-btn cleaning" onclick="markCleaned()">Mark as Cleaned</button>
+            <button id="btnMaintenance" class="action-btn maintenance" onclick="markForMaintenance()">Mark for Maintenance</button>
+            <button id="clearMaintenanceBtn" class="action-btn maintenance-clear" onclick="clearMaintenance()" style="display: none;">Clear Maintenance</button>
+        </div>
+    </div>
+</div>
+
+<!-- Check-in Form Modal -->
+<div id="checkInModal" class="modal" style="display: none;">
+    <div class="modal-content check-in-form">
+        <span class="close-modal" onclick="closeCheckInForm()">&times;</span>
+        <h3>Check In - <span id="checkInRoomNumber"></span></h3>
+        
+        <div class="form-group">
+            <label for="guestName">Guest Name:</label>
+            <input type="text" id="guestName" placeholder="Full name" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="guestPhone">Phone Number:</label>
+            <input type="tel" id="guestPhone" placeholder="Phone number" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="guestID">ID Number:</label>
+            <input type="text" id="guestID" placeholder="ID/Passport number" required>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label for="checkInDate">Check-in Date:</label>
+                <input type="date" id="checkInDate" required disabled>
+            </div>
+            
+            <div class="form-group">
+                <label for="numberOfNights">Number of Nights:</label>
+                <input type="number" id="numberOfNights" min="1" value="1" required>
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label for="checkOutDate">Check-out Date:</label>
+            <input type="date" id="checkOutDate" disabled>
+        </div>
+
+        <div class="form-group">
+            <label>Room Price:</label>
+            <input type="text" id="roomPrice" disabled style="background:#f3f4f6;color:#374151;font-weight:600;">
+        </div>
+        
+        <div class="form-actions">
+            <button id="quickCheckinBtn" class="action-btn checkin" style="display:none;margin-right:8px;" onclick="quickCheckIn()">Quick Check In</button>
+            <button class="action-btn checkin" onclick="submitCheckIn()">Confirm Check In</button>
+            <button class="action-btn" style="background: #e5e7eb; color: #374151;" onclick="closeCheckInForm()">Cancel</button>
+        </div>
+    </div>
+</div>
+
+    <!-- Guest Search Modal (floating) -->
+    <div id="guestSearchModal" class="modal" style="display: none; align-items: center; justify-content: center;">
+        <div class="modal-content" style="max-width:500px; width:100%;">
+            <span class="close-modal" onclick="closeGuestSearch()">&times;</span>
+            <h3>Find existing guest</h3>
+            <p style="color:#666;margin-top:0;margin-bottom:8px;">Type name to search previous guests or add a new one.</p>
+            <input id="guestSearchInput" type="text" placeholder="Search guest name" style="width:100%;padding:8px;margin-bottom:8px;box-sizing:border-box;">
+            <div id="guestSearchResults" style="max-height:220px;overflow:auto;border:1px solid #e5e7eb;padding:8px;border-radius:6px;background:#fff;"></div>
+            <div style="margin-top:10px;text-align:right;">
+                <button class="action-btn" onclick="openCheckInFormWithGuest(null)">Add New Guest</button>
+                <button class="action-btn" style="background:#e5e7eb;color:#374151;margin-left:8px;" onclick="closeGuestSearch()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+<script src="js/config.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/status.js"></script>
+</body>
+
+<!-- Due Checkouts Section -->
+<section id="dueCheckoutsSection" style="margin:48px auto 0 auto;max-width:720px;padding:var(--spacing-lg);background:var(--color-warning-lighter);border-radius:var(--radius-lg);box-shadow:var(--shadow-xs);">
+        <h3 style="color:var(--color-warning-dark);font-size:var(--font-size-xl);font-weight:var(--font-weight-bold);margin-bottom:var(--spacing-md);display:flex;align-items:center;justify-content:space-between;">
+            <span>Due Checkouts</span>
+            <button class="action-btn" id="clearDueCheckoutsBtn" style="background:var(--color-danger);color:var(--color-white);font-size:0.97em;padding:4px 14px;border-radius:6px;">Clear All Due Checkouts</button>
+        </h3>
+    <div id="dueCheckoutsList" style="min-height:32px;color:var(--color-warning-dark);font-size:var(--font-size-base);">
+        <!-- Populated by JS: List of guests/rooms with due checkout -->
+    </div>
+</section>
+</body>
+</html>

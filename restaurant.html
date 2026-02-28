@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>PUKORET HOMES Restaurant POS</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .category-title { margin-top: 20px; font-size: 20px; font-weight: bold; color: #b91c1c; }
+    </style>
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="logo">PUKORET HOMES</div>
+    <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="status.html">Motel</a></li>
+        <li><a href="admin.html">Admin</a></li>
+        <li><a href="motel.html">Motel</a></li>
+        <li><a href="restaurant.html" class="active">Restaurant</a></li>
+    </ul>
+</nav>
+
+<main class="page-container">
+    <h1 class="page-title">PUKORET HOMES RESTAURANT POS</h1>
+
+    <div class="grid">
+
+        <section class="card">
+            <h3>Menu</h3>
+            <div id="menuList" class="menu-grid"></div>
+        </section>
+
+        <aside class="card">
+            <h3>Current Order</h3>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Item</th>
+                        <th>Qty</th>
+                        <th>Price</th>
+                        <th>Total</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody id="cartBody"></tbody>
+            </table>
+
+            <hr>
+
+            <p>Subtotal: Ksh <span id="subtotal">0</span></p>
+            <p>VAT (16%): Ksh <span id="vat">0</span></p>
+            <h3>Total: Ksh <span id="grandTotal">0</span></h3>
+
+            <select id="paymentMethod">
+                <option>Cash</option>
+                <option>Card</option>
+                <option>M-Pesa</option>
+            </select>
+
+            <div style="margin-top:10px">
+                <button onclick="submitOrder()">Submit Order</button>
+                <button onclick="clearCart()" style="background:red; margin-left:8px">Clear</button>
+            </div>
+        </aside>
+
+    </div>
+</main>
+
+<script src="js/restaurant.js"></script>
+
+</body>
+</html>

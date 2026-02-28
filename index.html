@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Motel System Login</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+
+<div class="card" style="width:400px;margin:100px auto;">
+    <h2>Enter PIN</h2>
+    <input type="password" id="pin" placeholder="4-digit PIN" maxlength="6" style="font-size:1.1em; text-align:center;" />
+    <div id="keypad" style="margin-top:12px; display:grid; grid-template-columns: repeat(3, 1fr); gap:8px;">
+        <button onclick="pressKey('1')">1</button>
+        <button onclick="pressKey('2')">2</button>
+        <button onclick="pressKey('3')">3</button>
+        <button onclick="pressKey('4')">4</button>
+        <button onclick="pressKey('5')">5</button>
+        <button onclick="pressKey('6')">6</button>
+        <button onclick="pressKey('7')">7</button>
+        <button onclick="pressKey('8')">8</button>
+        <button onclick="pressKey('9')">9</button>
+        <button onclick="backspace()">←</button>
+        <button onclick="pressKey('0')">0</button>
+        <button onclick="submitPin()">↵</button>
+    </div>
+    <button onclick="login()" style="margin-top:10px;">Submit</button>
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/auth.js"></script>
+<script>
+function pressKey(d){
+  const inp = document.getElementById('pin');
+  inp.value = inp.value + d;
+}
+function backspace(){
+  const inp = document.getElementById('pin');
+  inp.value = inp.value.slice(0,-1);
+}
+function submitPin(){
+  login();
+}
+// allow enter key
+document.addEventListener('DOMContentLoaded',()=>{
+  document.getElementById('pin').addEventListener('keydown', e=>{
+    if(e.key === 'Enter') login();
+  });
+});
+</script>
+</body>
+</html>
